@@ -16,6 +16,7 @@ import java.util.List;
 public class TimeEntryController {
 
     private List<TimeEntry> result;
+
     @Autowired
     TimeEntryRepository timeEntryRepository;
     private long id;
@@ -23,14 +24,14 @@ public class TimeEntryController {
     public TimeEntryController(TimeEntryRepository timeEntryRepository) {
                 this.timeEntryRepository=timeEntryRepository;
     }
-    @RequestMapping(method = RequestMethod.POST ,produces = MediaType.APPLICATION_JSON_UTF8_VALUE )
+    @PostMapping()
     public ResponseEntity create(@RequestBody  TimeEntry object)
     {     System.out.println(" test create " + object);
             TimeEntry objectTemp= timeEntryRepository.create(object);
             return new ResponseEntity(objectTemp,HttpStatus.CREATED);
     }
 
-    @RequestMapping(method = RequestMethod.GET, value="/{timeEntryId}" )
+    @GetMapping("{timeEntryId}" )
     public ResponseEntity<TimeEntry> read(@PathVariable ("timeEntryId") long timeEntryId) {
         TimeEntry timeEntry= timeEntryRepository.find(timeEntryId);
         if(timeEntry!=null )
@@ -40,7 +41,7 @@ public class TimeEntryController {
         return new ResponseEntity(HttpStatus.NOT_FOUND);
     }
 
-    @RequestMapping(method = RequestMethod.GET)
+    @GetMapping
     public ResponseEntity<List<TimeEntry>> list() {
 
        // return new ResponseEntity<TimeEntry>(HttpStatus.OK);
@@ -57,7 +58,7 @@ public class TimeEntryController {
         return new ResponseEntity( HttpStatus.NOT_FOUND);
     }
 
-    @RequestMapping(method = RequestMethod.DELETE, value="/{timeEntryId}" )
+    @DeleteMapping("{timeEntryId}" )
     public ResponseEntity<TimeEntry> delete(@PathVariable("timeEntryId") long timeEntryId) {
 
         timeEntryRepository.delete(timeEntryId);
