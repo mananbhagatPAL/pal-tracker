@@ -10,27 +10,24 @@ jobs:
   include:
     - stage: build and publish
       language: java
-<<<<<<< HEAD
       jdk: openjdk8
-=======
-      jdk: openjdk11
+
+
       addons:
         mariadb: '10.2'
-<<<<<<< HEAD
->>>>>>> cb5ef28... Add task for migrating databases
-=======
->>>>>>> cb5ef28... Add task for migrating databases
+
       install: skip
-      before_script:
-        - mysql -uroot < databases/tracker/create_databases.sql
-        - curl https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/5.1.1/flyway-commandline-5.1.1-linux-x64.tar.gz | tar xvz
-        - flyway-*/flyway -url="jdbc:mysql://localhost:3306/tracker_test" -locations=filesystem:databases/tracker -user=tracker -password= clean migrate
+    before_script:
+      - mysql -uroot < databases/tracker/create_databases.sql
+      - curl https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/5.1.1/flyway-commandline-5.1.1-linux-x64.tar.gz | tar xvz
+      - flyway-*/flyway -url="jdbc:mysql://localhost:3306/tracker_test" -locations=filesystem:databases/tracker -user=tracker -password= clean migrate
       script: ./gradlew clean build
+      before_install:
+        - chmod +x gradlew
       before_deploy:
         - git config --local user.name "Travis CI"
         - git config --local user.email "travis@example.com"
         - git tag -f $RELEASE_TAG
-        - chmod +x build.sh
       deploy:
         provider: releases
         api_key: $GITHUB_OAUTH_TOKEN
@@ -45,19 +42,21 @@ jobs:
         - sudo apt-get install cf-cli
         - sudo apt-get -y install jq
         - curl https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/5.1.1/flyway-commandline-5.1.1-linux-x64.tar.gz | tar xvz
-        - chmod +x build.sh
+        - chmod +x gradlew
       script:
         - echo "Downloading $RELEASE_TAG"
         - wget -P build/libs https://github.com/$GITHUB_USERNAME/pal-tracker/releases/download/$RELEASE_TAG/pal-tracker.jar
-      before_deploy:
-        - echo "Deploying $RELEASE_TAG to Cloud Foundry"
-      before_script:
-        - cf login -a $CF_API_URL -u $CF_USERNAME -p $CF_PASSWORD -o $CF_ORG -s $CF_SPACE
-        - scripts/migrate-databases.sh pal-tracker .
-      deploy:
-        provider: cloudfoundry
-        api: $CF_API_URL
-        username: $CF_USERNAME
-        password: $CF_PASSWORD
-        organization: $CF_ORG
-        space: $CF_SPACE
+  :
+
+before_deploy:
+  - echo "Deploying $RELEASE_TAG to Cloud Foundry"
+before_script:
+  - cf login -a $CF_API_URL -u $CF_USERNAME -p $CF_PASSWORD -o $CF_ORG -s $CF_SPACE
+  - scripts/migrate-databases.sh pal-tracker .
+deploy:
+  provider: cloudfoundry
+  api: $CF_API_URL
+  username: $CF_USERNAME
+  password: $CF_PASSWORD
+  organization: $CF_ORG
+  space: $CF_SPACE
